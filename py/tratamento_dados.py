@@ -2,19 +2,25 @@ import pandas as pd
 import re
 
 # Diretório da planilha a ser trabalhada
-planilha = 'C:/Users/diego.pissetti/Documents/Marcelo/Python/Tratamento de Dados - Listas BF/planilhas/Cobrança Aposentados.xlsx'
+planilha = 'C:/Users/diego.pissetti/Documents/Marcelo/Python/TratamentoDeDadosListasBF/planilhas/Lembrete Cobrança Venc 10 - Copia.xlsx'
 
 # Força leitura de colunas como texto para evitar notação científica
 colunas_texto = ['CPF_CNPJ', 'DDD', 'Fone 1', 'Fone 2', 'Fone 3', 'TELEFONE']
 df_original = pd.read_excel(planilha, sheet_name=None, dtype={col: str for col in colunas_texto})
 
-# Fazer uma cópia da aba Export para tratar
-df_tratados = df_original['Export'].copy()
+# Fazer uma cópia da aba Base 10 para tratar
+df_tratados = df_original['Base 10'].copy()
+
+# Fazer uma cópia da aba Black para remover os telefones
+df_black = df_original['Black'].copy()
+
+# Fazer uma cópia da aba Judicial para remover os contratos
+df_judicial = df_original['Judicial'].copy()
 
 def limpar_ddd(ddd):
     if pd.isna(ddd):
         return ''
-    return re.sub(r'\D','', ddd).zfill(2)
+    return re.sub(r'/D','', ddd).zfill(2)
 
 def limpar_fone(fone, ddd):
     if pd.isna(fone):
@@ -81,6 +87,9 @@ def limpar_nome(nome):
   # Remove tudo o que não for letra no início e final da string
   return re.sub(r'^[^a-zA-Z]+|[^a-zA-Z]+$', '', nome)
 
+# Aplicar a remoção de contratos que estão na Judicial
+df_tratados = df_tratados[~df_tratados['Contrato'].isin(df_judicial['CONTRATO'])]
+
 # Chama a função limpar_nome() no Data Frame
 df_tratados['NOME'] = df_tratados['Nome Cliente'].apply(limpar_nome)
 
@@ -101,9 +110,12 @@ df_tratados = df_tratados.rename(columns={
     'Vlr Carteira Ativa': 'VLR'
 }).copy()
 
-# Agrupar por CPF_CNPJ (caso tenha cliente duplicado com o mesmo CPF/CNPJ)
+# Aplicar a remoção de telefones que estão na Black
+df_tratados = df_tratados[~df_tratados['FONES'].isin(df_black['TELEFONE'])]
+
+# Agrupar por FONES (caso tenha cliente duplicado com o mesmo número de telefone)
 # e somar o valor emprestado
-df_tratados = df_tratados.groupby('CPF_CNPJ', as_index=False).agg({
+df_tratados = df_tratados.groupby('FONES', as_index=False).agg({
     'REGIONAL': 'first',
     'UNIDADE': 'first',
     'CÓD. CARTEIRA': 'first',
