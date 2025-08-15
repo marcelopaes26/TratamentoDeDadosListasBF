@@ -2,8 +2,8 @@ import pandas as pd
 import re
 
 # Diretório da planilha a ser trabalhada
-origem = 'C:/Users/diego.pissetti/Documents/Marcelo/Python/TratamentoDeDadosListasBF/origem/Inativos BF.xlsx'
-destino = 'C:/Users/diego.pissetti/Documents/Marcelo/Python/TratamentoDeDadosListasBF/destino/Inativos 07-2025.xlsx'
+origem = 'C:/Users/diego.pissetti/Documents/Marcelo/Python/TratamentoDeDadosListasBF/origem/Inativos 08-2025.xlsx'
+destino = 'C:/Users/diego.pissetti/Documents/Marcelo/Python/TratamentoDeDadosListasBF/destino/Inativos 08-2025.xlsx'
 
 # Força leitura de colunas como texto para evitar notação científica
 colunas_texto = ['CPF_CNPJ', 'DDD', 'Fone 1', 'Fone 2', 'Fone 3', 'Fone 4', 'TELEFONE', 'Contrato', 'CONTRATO']
@@ -81,10 +81,8 @@ def limpar_nome(nome):
   # Remove tudo o que não for letra no início e final da string
   return re.sub(r'^[^a-zA-Z]+|[^a-zA-Z]+$', '', nome)
 
-
-# Retirar os contratos da Matriz e Óbito (Carteira Sede)
-df_tratados = df_tratados[~df_tratados['Cód. Carteira'].str[:7].isin(['BF-SEDE']) &
-                          ~df_tratados['Regional'].isin(['MTZ'])]
+# Retirar os contratos de Óbito (Carteira Sede)
+df_tratados = df_tratados[~df_tratados['Cód. Carteira'].isin(['BF-SEDE'])]
 
 # Aplicar a remoção de contratos que estão na Judicial
 df_tratados = df_tratados[~df_tratados['Contrato'].isin(df_judicial['CONTRATO'])]
@@ -129,7 +127,7 @@ df_tratados = df_tratados[['REGIONAL', 'UNIDADE', 'CÓD. CARTEIRA', 'CONTRATO', 
 
 # Ordenar pelos 1000 primeiros registros com o maior valor para LGS e CTB 
 # (Isso funciona, pois as outras regionais estão com registros menor que 1000)
-df_tratados = df_tratados.groupby('REGIONAL', group_keys=False).apply(lambda x: x.nlargest(1000, 'VLR'))
+# df_tratados = df_tratados.groupby('REGIONAL', group_keys=False).apply(lambda x: x.nlargest(1000, 'VLR'))
 
 # Adicionar a nova aba Envio MKT na planilha original
 df_original['Envio MKT'] = df_tratados

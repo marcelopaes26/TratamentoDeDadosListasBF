@@ -2,8 +2,8 @@ import pandas as pd
 import re
 
 # Diretório da planilha a ser trabalhada
-origem = 'C:/Users/diego.pissetti/Documents/Marcelo/Python/TratamentoDeDadosListasBF/origem/Renovação 60+ 07-2025.xlsx'
-destino = 'C:/Users/diego.pissetti/Documents/Marcelo/Python/TratamentoDeDadosListasBF/destino/Renovação 60+ 07-2025.xlsx'
+origem = 'C:/Users/diego.pissetti/Documents/Marcelo/Python/TratamentoDeDadosListasBF/origem/Renovação 60+ 08-2025.xlsx'
+destino = 'C:/Users/diego.pissetti/Documents/Marcelo/Python/TratamentoDeDadosListasBF/destino/Renovação 60+ 08-2025.xlsx'
 
 # Força leitura de colunas como texto para evitar notação científica
 colunas_texto = ['CPF_CNPJ', 'DDD', 'Fone 01', 'Fone 02', 'Fone 03', 'TELEFONE', 'Contrato', 'CONTRATO']
@@ -84,19 +84,12 @@ def limpar_nome(nome):
 # Filtrar contratos com Quitação >= 60%
 df_tratados = df_tratados[df_tratados['% Quitacao Contrato'] >= 0.60]
 
-# Retirar os contratos de Modalidade Flex e Óbito (Carteira Sede)
-df_tratados = df_tratados[~df_tratados['Nome Agente'].str[:7].isin(['BF-SEDE']) &
+# Retirar os contratos de Modalidade Flex e Óbito (BF-SEDE)
+df_tratados = df_tratados[~df_tratados['Nome Agente'].str.match(r'^BF-SEDE\b') &
                           ~df_tratados['Tipo Contrato'].isin(['FLEX'])]
 
-# Lista com prefixos de carteiras específicas
-# prefixos_carteira = [
-#     'BF-LGS02', 'BF-LGS18', 'BF-OTC01', 'BF-LGS01', 'BF-GRJ01', 'BF-OTC02', 
-#     'BF-LGS03', 'BF-LGS07', 'BF-GRJ03', 'BF-AGB01', 'BF-RDS01', 'BF-GRJ02', 
-#     'BF-URB01', 'BF-CXS01', 'BF-CXS02', 'BF-CXS03', 'BF-CXS04', 'BF-FRP01'
-# ]
-
-# # Filtrar contratos a partir da lista de carteiras
-# df_tratados = df_tratados[df_tratados['Nome Agente'].str[:8].isin(prefixos_carteira)]
+# Retirar os contratos de Rede de Mulheres (BF-RES01)
+df_tratados = df_tratados[~df_tratados['Nome Agente'].str[:8].isin(['BF-RES01'])]
 
 # Aplicar a remoção de contratos que estão na Judicial
 df_tratados = df_tratados[~df_tratados['Contrato'].isin(df_judicial['CONTRATO'])]
