@@ -1,9 +1,13 @@
-import pandas as pd
+import os
 import re
+import pandas as pd
+from dotenv import load_dotenv
 
-# Diretório da planilha a ser trabalhada
-origem = 'C:/Users/diego.pissetti/Documents/Marcelo/Python/TratamentoDeDadosListasBF/origem/Clientes Risco 31-60 - 61-90 07-2025.xlsx'
-destino = 'C:/Users/diego.pissetti/Documents/Marcelo/Python/TratamentoDeDadosListasBF/destino/Clientes Risco 31-60 - 61-90 07-2025.xlsx'
+# Carrega as variáveis do .env
+load_dotenv()
+origem = os.getenv('ORIGEM')
+destino = os.getenv('DESTINO')
+
 # Força leitura de colunas como texto para evitar notação científica
 colunas_texto = ['CPF_CNPJ', 'DDD', 'Fone 1', 'Fone 2', 'Fone 3', 'Fone 4', 'Fone 5', 'TELEFONE', 'Contrato', 'CONTRATO']
 df_original = pd.read_excel(origem, sheet_name=None, dtype={col: str for col in colunas_texto})
@@ -135,6 +139,8 @@ df_tratados = df_tratados[['REGIONAL', 'UNIDADE', 'CÓD. CARTEIRA', 'CONTRATO', 
 
 # Adicionar a nova aba Envio MKT na planilha original
 df_original['Envio MKT'] = df_tratados
+
+print("Processando...")
 
 # Salvar resultado com todas as abas na mesma planilha
 with pd.ExcelWriter(destino, engine='openpyxl', mode='w') as writer:

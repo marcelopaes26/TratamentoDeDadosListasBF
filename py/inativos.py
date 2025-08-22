@@ -1,9 +1,12 @@
-import pandas as pd
+import os
 import re
+import pandas as pd
+from dotenv import load_dotenv
 
-# Diretório da planilha a ser trabalhada
-origem = 'C:/Users/diego.pissetti/Documents/Marcelo/Python/TratamentoDeDadosListasBF/origem/Inativos 08-2025.xlsx'
-destino = 'C:/Users/diego.pissetti/Documents/Marcelo/Python/TratamentoDeDadosListasBF/destino/Inativos 08-2025.xlsx'
+# Carrega as variáveis do .env
+load_dotenv()
+origem = os.getenv('ORIGEM')
+destino = os.getenv('DESTINO')
 
 # Força leitura de colunas como texto para evitar notação científica
 colunas_texto = ['CPF_CNPJ', 'DDD', 'Fone 1', 'Fone 2', 'Fone 3', 'Fone 4', 'TELEFONE', 'Contrato', 'CONTRATO']
