@@ -84,8 +84,9 @@ def limpar_nome(nome):
   # Remove tudo o que não for letra no início e final da string
   return re.sub(r'^[^a-zA-Z]+|[^a-zA-Z]+$', '', nome)
 
-# Retirar os contratos de Óbito (Carteira Sede)
-df_tratados = df_tratados[~df_tratados['Cód. Carteira'].isin(['BF-SEDE'])]
+# Retirar os contratos de óbito (BF-SEDE) e rede de mulheres (BF-RES01)
+df_tratados = df_tratados[~df_tratados['Cód. Carteira'].isin(['BF-SEDE']) &
+                          ~df_tratados['Cód. Carteira'].isin(['BF-RES01'])]
 
 # Aplicar a remoção de contratos que estão na Judicial
 df_tratados = df_tratados[~df_tratados['Contrato'].isin(df_judicial['CONTRATO'])]
@@ -105,6 +106,7 @@ df_tratados = df_tratados.rename(columns={
     'Unidade': 'UNIDADE',
     'Cód. Carteira': 'CÓD. CARTEIRA',
     'Contrato': 'CONTRATO',
+    'Tipo Cadastro': 'TIPO CADASTRO',
     'Vlr Emprestado': 'VLR'
 }).copy()
 
@@ -122,11 +124,12 @@ df_tratados = df_tratados.groupby('FONES', as_index=False).agg({
     'CÓD. CARTEIRA': 'first',
     'CONTRATO': 'first',
     'NOME': 'first',
-    'VLR': 'sum'
+    'TIPO CADASTRO': 'first',
+    'VLR': 'first'
 })
 
 # Colunas ordenadas
-df_tratados = df_tratados[['REGIONAL', 'UNIDADE', 'CÓD. CARTEIRA', 'CONTRATO', 'NOME', 'VLR', 'FONES']]
+df_tratados = df_tratados[['REGIONAL', 'UNIDADE', 'CÓD. CARTEIRA', 'CONTRATO', 'NOME', 'TIPO CADASTRO', 'VLR', 'FONES']]
 
 # Ordenar pelos 1000 primeiros registros com o maior valor para LGS e CTB 
 # (Isso funciona, pois as outras regionais estão com registros menor que 1000)
